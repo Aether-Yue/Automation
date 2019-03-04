@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="All Test Suite" allow-return-values="true">
+  <!-- group 控制执行的case -->
+  <groups>
+  <!-- group name 与代码中定义一致 -->
+    <run>
+       <!--
+       <exclude name="g_logout" />
+       -->  
+       <include name="execute" />
+    </run>  
+  </groups>
+  
+  <listeners>
+    <!-- listener失败重试 -->
+    <listener class-name="com.automation.service.RetryListener" />
+    <listener class-name="com.automation.until.RetryTestListener" />
+    <!-- listener生成测试报告 -->
+    <listener class-name="org.uncommons.reportng.HTMLReporter" />
+    <listener class-name="org.uncommons.reportng.JUnitXMLReporter" />
+  </listeners>
+  
+  <!-- case -->
+  <test preserve-order="true" name="AutomationTest">
+    <!-- case执行类 -->
+    <classes>
+    <class name="com.automation.controller.AutomationControlTest" />
+    </classes>
+  </test>
+</suite>

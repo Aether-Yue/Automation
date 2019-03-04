@@ -1,0 +1,220 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>执行测试</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            var unitObj = document.getElementById("project_name");
+            unitObj.options.add(new Option("test001", "test001"));
+            unitObj.options.add(new Option("test002", "test002"));
+        });
+
+        /*id选择器*/
+        $(document).ready(function () {
+            //执行测试案例
+            $("#executeTestCaseBT").click(executeTestCaseBT);
+            //查询
+            $("#queryTestFileBT").click(queryTestCaseFile);
+
+        });
+
+        // function test() {
+        //
+        //     console.log(window.location.host);
+        //     console.log(window.location.protocol);
+        //
+        //     var project = getProjectName();
+        //     console.log("__project:" + project)
+        //     var urlJsonParam = getUrlJsonParam();
+        //     $.ajax({
+        //         type: 'POST',
+        //         dataType: 'json',
+        //         cache: false,
+        //         url: 'http://' + window.location.host + '/test?project=' + encodeURI(project),
+        //         contentType: 'application/json;charset=UTF-8',
+        //         data: urlJsonParam,
+        //         success: function (a, data) {
+        //             console.log(a, data);
+        //             alert("success");
+        //             var executeResult = '<input type="text" value=' + data + '>';
+        //             $("#executeResult").html(executeResult);
+        //         },
+        //
+        //         error: function (a,data) {
+        //             alert("failed");
+        //             console.log(a.responseText, data);
+        //             var executeResult = '<textarea class="comments"  name=s1   cols=30   onpropertychange= "this.style.posHeight=this.scrollHeight "> ' + a.responseText + '</textarea>';
+        //             $("#executeResult").html(executeResult);
+        //         }
+        //     });
+        // }
+
+        function executeTestCaseBT() {
+            console.log(window.location.host);
+            console.log(window.location.protocol);
+
+            var project = getProjectName();
+            console.log("__project:" + project)
+            var urlJsonParam = getUrlJsonParam();
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                cache: false,
+                url: 'http://' + window.location.host + '/codetest?project=' + encodeURI(project),
+                contentType: 'application/json;charset=UTF-8',
+                data: urlJsonParam,
+                success: function (a, data) {
+                    var executeResult = '<textarea class="comments"  name=s1   cols=30   onpropertychange= "this.style.posHeight=this.scrollHeight "> ' + a.responseText + '</textarea>';
+                    $("#executeResult").html(executeResult);
+                },
+
+                error: function (data) {
+                    alert("failed");
+                }
+            });
+        }
+
+        function getProjectName() {
+            var ss = "";
+            $.each($('input:checkbox:checked'), function (a, b) {
+                var str = $(b).val().split(":");
+                ss = str[1];
+                console.log("str:" + str);
+                if (ss.indexOf("\\") != -1) {
+                    var filepath = str[1].split("\\");
+                    ss = filepath[0];
+                } else {
+                    return ss;
+                }
+            });
+            return ss;
+        }
+
+        function getUrlJsonParam() {
+            var urlJsonParam = "";
+            var jsonElement = "";
+            $.each($('input:checkbox:checked'), function (a, b) {
+                var str = $(b).val().split(":");
+                var filename = str[0];
+                var filepath = str[1];
+                filename = '"name":"' + filename + '"';
+                filepath = '"path":"' + filepath + '"';
+                // filepath = filepath.replace("\\","\\\\");
+                jsonElement = "{" + filename + "," + filepath + "}";
+                urlJsonParam = urlJsonParam + jsonElement + ",";
+            });
+            urlJsonParam = urlJsonParam.substr(0, urlJsonParam.length - 1);
+            urlJsonParam = '{"caselist":[' + urlJsonParam + ']}';
+            console.log("____" + urlJsonParam);
+            return urlJsonParam;
+        }
+
+        function queryTestCaseFile() {
+            console.log("开始查询");
+            var project = document.getElementById("project_name").value;
+            if (project == null || project == "" || project == "null") {
+                alert("请输入项目名");
+                return;
+            }
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                cache: false,
+                url: 'http://' + window.location.host + '/edcase/edquery?project=' + encodeURI(project),
+                contentType: 'application/json;charset=UTF-8',
+                success: successFunction, //返回json结果
+                error: function (data) {
+                    alert("failed");
+                }
+            });
+
+            console.log("查询结束");
+        }
+
+        function successFunction(data) {
+            // alert("success");
+
+            console.log("success");
+            console.log(data.caselist);
+            var ss = data.caselist;
+            console.log("ss" + ss);
+            var con = "";
+            $.each(ss, function (index, item) {
+                console.log(item);
+                console.log("__" + item.toString());
+                con += index + "<tr><td hidden='hidden'>" + index + "</td><td><input type=\"checkbox\" value='" + item.name + ":" + item.path + "'></td><td>" + item.name + "</td><td>" + item.path + "</td></tr>>";
+            });
+            console.log(con);
+            $("#con").html(con);
+        }
+
+    </script>
+</head>
+
+<body>
+<!--/*@thymesVar id="name" type="java.lang.String"*/-->
+
+<h2>创建项目</h2>
+<div style="
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #C0C0C0;
+    border-width: 1px;
+    border-style: solid;
+">
+    <form action="/xmltest">
+        Project name:
+        <input type="text" name="project">
+        <input type="submit" value="创建项目">
+    </form>
+</div>
+<br>
+
+<h2>测试用例</h2>
+<div style="
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #C0C0C0;
+    border-width: 1px;
+    border-style: solid;
+">
+    <select id="project_name" autofocus="autofocus">
+        <option>--请选择项目--</option>
+    </select>
+    <button id="queryTestFileBT" type="button">查询</button>
+    <button>上传文件</button>
+    <input id="executeTestCaseBT" type="button" value="执行">
+    <div style="margin-top: 10px;
+    border-width: 1px;
+    background-color: #F8F8F8;
+">
+        <table id="cons" border="1" border-color="" width="100%">
+            <thead style="background-color: #C0C0C0">
+            <th>勾选<input type="checkbox"></th>
+            <th>文件名</th>
+            <th>文件路径</th>
+            </thead>
+            <tbody id="con">
+
+            </tbody>
+        </table>
+    </div>
+    <div id="executeResult">
+
+    </div>
+</div>
+<span>
+<span></span>
+<span></span>
+</span>
+
+</body>
+
+
+</html>

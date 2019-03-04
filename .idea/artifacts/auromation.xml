@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="auromation">
+    <output-path>$PROJECT_DIR$/classes/artifacts/auromation</output-path>
+    <root id="root" />
+  </artifact>
+</component>
